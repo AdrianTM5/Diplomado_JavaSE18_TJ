@@ -2,11 +2,11 @@ package mx.com.cursodia.jse18.mod2.sem1;
 
 public class Articulo 
 {
-	int cve_art;
-	String cat_art;
-	String nom_art;
-	float pre_art;
-	int inv_art;
+	private int cve_art;
+	private String cat_art;
+	private String nom_art;
+	private float pre_art;
+	private int inv_art;
 
 	
 	public Articulo(int cve_art, String cat_art, String nom_art, float pre_art, int inv_art)

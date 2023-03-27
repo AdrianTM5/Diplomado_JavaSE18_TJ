@@ -4,39 +4,59 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
 import javax.swing.JButton;
+
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
-public class TJRegistrar extends JFrame implements ActionListener
+public class TJRegistrar extends JFrame
 {
-
+	/**
+	 * Launch the application.
+	 */
+	boolean termino = false;
+	public void lanzar() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					setVisible(false);
+					setResizable(false);
+					termino = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	private JPanel contentPane;
 	private JPanel InfoPanel;
 	private JPanel ButtonPanel;
 	private JLabel IdLabel;
-	private JTextField IdTextField;
+	JTextField IdTextField;
 	private JLabel NombreLabel;
-	private JTextField NombreTextField;
+	JTextField NombreTextField;
 	private JLabel CategoriaLabel;
-	private JTextField CategoriaTextField;
+	JTextField CategoriaTextField;
 	private JLabel InventarioLabel;
-	private JTextField InventarioTextField;
+	JTextField InventarioTextField;
 	private JLabel PrecioLabel;
-	private JTextField PrecioTextField;
+	JTextField PrecioTextField;
 	/**
 	 * Create the frame.
 	 */
 	JButton btnAgregar;
 	JButton btnSalir;
+	Modelo m;
+	private boolean isActive;
 	public TJRegistrar()
 	{
+		this.isActive = false;
 		setTitle("Tienda de juguetes");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 550, 350);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -104,45 +124,26 @@ public class TJRegistrar extends JFrame implements ActionListener
 		btnAgregar = new JButton("Agregar");
 		btnAgregar.setBounds(25, 12, 178, 71);
 		ButtonPanel.add(btnAgregar);
-		btnAgregar.addActionListener(this);
 		
 		btnSalir = new JButton("Salir");
 		btnSalir.setBounds(295, 12, 178, 71);
 		ButtonPanel.add(btnSalir);
-		btnSalir.addActionListener(this);
 	}
 	
-	public static ArrayList<Articulo> rAlmacen = new ArrayList<Articulo>();
-	int cve, inv, i = 0; 
-	String cat, nom;
-	float pre;
-	@Override
-	public void actionPerformed(ActionEvent e)
+	public void activar()
 	{
-		TJInicio GUI = new TJInicio();
-		if(e.getSource() == btnAgregar)
-		{
-			try {
-				cve = Integer.parseInt(IdTextField.getText());
-				cat = CategoriaTextField.getText();
-				nom = NombreTextField.getText();
-				pre = Float.parseFloat(PrecioTextField.getText());
-				inv = Integer.parseInt(InventarioTextField.getText());
-				rAlmacen.add(new Articulo(cve,cat,nom,pre,inv));
-				
-				GUI.sustituir(IdTextField, NombreTextField, CategoriaTextField, PrecioTextField, InventarioTextField);
-				JOptionPane.showMessageDialog(null, "Juguete agregado exitosamente");
-			} catch (NumberFormatException e2) {
-				// TODO: handle exception
-				JOptionPane.showMessageDialog(null, "Favor de llenar todos los campos");
-			}
-		}
-		else if(e.getSource() == btnSalir)
-		{
-			this.dispose();
-			GUI.setVisible(true);
-			
-		}
-		
+		this.isActive = true;
+		this.setVisible(true);
 	}
+	
+	public void desactivar() 
+	{
+        this.isActive = false;
+        this.dispose();
+    }
+
+    public boolean isActive() 
+    {
+        return this.isActive;
+    }
 }
