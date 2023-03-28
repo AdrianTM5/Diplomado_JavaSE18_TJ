@@ -10,5 +10,6 @@ public class LanzadorI
 		TJMostrar mos = new TJMostrar();
 		
 		Controlador co = new Controlador(mod, ini, reg, mos);
+		co.conectar();
 	}
 }

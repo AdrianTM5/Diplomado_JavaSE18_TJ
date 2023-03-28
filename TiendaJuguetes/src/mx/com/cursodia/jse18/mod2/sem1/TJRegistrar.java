@@ -14,22 +14,21 @@ import java.awt.event.ActionListener;
 
 public class TJRegistrar extends JFrame
 {
+	Thread ThreadR;
 	/**
 	 * Launch the application.
 	 */
-	boolean termino = false;
 	public void lanzar() {
-		EventQueue.invokeLater(new Runnable() {
+		ThreadR = new Thread(new Runnable() {
 			public void run() {
 				try {
-					setVisible(false);
-					setResizable(false);
-					termino = true;
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+		ThreadR.start();
 	}
 	
 	private JPanel contentPane;

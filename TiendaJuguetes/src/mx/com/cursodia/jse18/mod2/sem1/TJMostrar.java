@@ -27,11 +27,13 @@ public class TJMostrar extends JFrame
 	JButton btnSig;
 	JButton btnActualizar;
 	
+	Thread ThreadM;
+	
 	/**
 	 * Launch the application.
 	 */
-	public void lanzar() {
-		EventQueue.invokeLater(new Runnable() {
+	void lanzar() {
+		ThreadM = new Thread(new Runnable() {
 			public void run() {
 				try {
 					
@@ -40,6 +42,7 @@ public class TJMostrar extends JFrame
 				}
 			}
 		});
+		ThreadM.start();
 	}
 
 	/**

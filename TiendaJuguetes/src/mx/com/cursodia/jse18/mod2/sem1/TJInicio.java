@@ -10,12 +10,13 @@ import javax.swing.JButton;
 public class TJInicio extends JFrame 
 {
 	private JPanel contentPane;
+	Thread ThreadI;
 
 	/**
 	 * Launch the application.
 	 */
-	public void lanzar() {
-		EventQueue.invokeLater(new Runnable() {
+	void lanzar() {
+		ThreadI = new Thread(new Runnable() {
 			public void run() {
 				try {
 					
@@ -24,6 +25,7 @@ public class TJInicio extends JFrame
 				}
 			}
 		});
+		ThreadI.start();
 	}
 
 	/**
