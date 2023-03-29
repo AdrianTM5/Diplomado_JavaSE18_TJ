@@ -71,7 +71,6 @@ public class Controlador implements ActionListener
 	int i = 0;
 	Statement stat = null;
 	ResultSet rset = null;
-	int valores = 0;
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
@@ -84,9 +83,7 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUI.btnMostrar)
 		{
-			
-			getTableSize();
-			if(valores != 0)
+			if(mod.getAlmacenSize() != 0)
 			{
 				GUI.dispose();
 				GUIMos.setVisible(true);
@@ -183,8 +180,7 @@ public class Controlador implements ActionListener
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
-			getTableSize();
-			if(valores > 1)
+			if(mod.getAlmacenSize() > 1)
 			{
 				GUIMos.btnSig.setEnabled(true);
 				if(!GUIMos.btnUltimo.isEnabled())
@@ -201,13 +197,12 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUIMos.btnUltimo)
 		{
-			getTableSize();
-			i = valores;
+			i = mod.getAlmacenSize();
 			mostrar(i);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
 			GUIMos.btnSig.setEnabled(false);
-			if(valores > 1)
+			if(mod.getAlmacenSize() > 1)
 			{
 				GUIMos.btnAnt.setEnabled(true);
 				if(!GUIMos.btnPrimero.isEnabled())
@@ -223,8 +218,7 @@ public class Controlador implements ActionListener
 			GUIMos.btnUltimo.setEnabled(false);		}
 		else if(e.getSource() == GUIMos.btnAnt) // <<
 		{
-			getTableSize();
-			if(valores > 1)
+			if(mod.getAlmacenSize() > 1)
 			{
 				i--;
 				mostrar(i);
@@ -249,13 +243,12 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUIMos.btnSig) // >>
 		{
-			getTableSize();
-			if(valores > 1)
+			if(mod.getAlmacenSize() > 1)
 			{
 				i++;
 				mostrar(i);
 				GUIMos.btnAnt.setEnabled(true);
-				if(i == valores)
+				if(i == mod.getAlmacenSize())
 				{
 					if(GUIMos.btnUltimo.isEnabled())
 					{
@@ -318,8 +311,7 @@ public class Controlador implements ActionListener
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnSig.setEnabled(false);
 			GUIMos.btnEditar.setEnabled(false);
-			getTableSize();
-			if(valores == 0)
+			if(mod.getAlmacenSize() == 0)
 			{
 				GUIMos.btnPrimero.setEnabled(false);
 				GUIMos.btnUltimo.setEnabled(false);
@@ -463,23 +455,26 @@ public class Controlador implements ActionListener
 		}
 	}
 	
-	private int getTableSize()
+	private void pasarDatos(ResultSet rs)
 	{
-		if(con != null)
+		try {
+				while(rs.next())
+				{
+					int cve = rs.getInt("cve_art");
+					String cat = rs.getString("cat_art");
+					String nom = rs.getString("nom_art");
+					float pre = rs.getFloat("pre_art");
+					int inv = rs.getInt("inv_art");
+					
+					Articulo art = new Articulo(cve, cat, nom, pre, inv);
+					mod.AlmacenAdd(art);
+					
+				}
+		} 
+		catch (SQLException e) 
 		{
-			try 
-			 {
-				stat = con.createStatement();
-				rset = stat.executeQuery("SELECT COUNT(*) FROM articulo");
-				rset.next();
-				valores = rset.getInt(1);
-			 } 
-			 catch (SQLException e1) 
-			 {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			 }
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return valores;
 	}
 }
