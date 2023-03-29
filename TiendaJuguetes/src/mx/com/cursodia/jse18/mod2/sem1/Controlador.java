@@ -74,6 +74,7 @@ public class Controlador implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
+		System.out.println(mod.getAlmacenSize());
 		//------------Inicio------------------
 		if(e.getSource() == GUI.btnRegistrar)
 		{
@@ -83,6 +84,34 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUI.btnMostrar)
 		{
+			Statement st = null;
+			ResultSet rs = null;
+			try 
+			{
+				
+				st = con.createStatement();
+				rs = st.executeQuery("SELECT * FROM articulo");
+				convertirDatos(rs);
+				
+			}
+			catch (SQLException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			finally
+			{
+					try 
+					{
+						if(st != null) st.close();
+						if(rs != null) rs.close();
+					} 
+					catch (SQLException e1) 
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}
 			if(mod.getAlmacenSize() != 0)
 			{
 				GUI.dispose();
@@ -120,25 +149,30 @@ public class Controlador implements ActionListener
 		if(e.getSource() == GUIReg.btnAgregar)
 		{
 			try {
-					cve = Integer.parseInt(GUIReg.IdTextField.getText());
 					cat = GUIReg.CategoriaTextField.getText();
 					nom = GUIReg.NombreTextField.getText();
 					pre = Float.parseFloat(GUIReg.PrecioTextField.getText());
 					inv = Integer.parseInt(GUIReg.InventarioTextField.getText());
 					
-					String query = "INSERT INTO articulo (cve_art,cat_art,nom_art,pre_art,inv_art) "
-							+ "VALUES (?,?,?,?,?)";
+					String query = "INSERT INTO articulo (cat_art,nom_art,pre_art,inv_art) "
+							+ "VALUES (?,?,?,?)";
 					PreparedStatement pstm = null;
+					Statement st = null;
+					ResultSet rs = null;
 					try 
 					{
 						pstm = con.prepareStatement(query);
-						pstm.setInt(1, cve);
-						pstm.setString(2, cat);
-						pstm.setString(3, nom);
-						pstm.setFloat(4, pre);
-						pstm.setInt(5, inv);
+						pstm.setString(1, cat);
+						pstm.setString(2, nom);
+						pstm.setFloat(3, pre);
+						pstm.setInt(4, inv);
 						
 						pstm.execute();
+						
+						st = con.createStatement();
+						rs = st.executeQuery("SELECT * FROM articulo");
+						convertirDatos(rs);
+						
 					}
 					catch (SQLException e1) 
 					{
@@ -147,10 +181,11 @@ public class Controlador implements ActionListener
 					}
 					finally
 					{
-						if(pstm != null)
 							try 
 							{
-								pstm.close();
+								if(pstm != null) pstm.close();
+								if(st != null) st.close();
+								if(rs != null) rs.close();
 							} 
 							catch (SQLException e1) 
 							{
@@ -158,7 +193,6 @@ public class Controlador implements ActionListener
 								e1.printStackTrace();
 							}
 					}
-					
 					sustituir(GUIReg.IdTextField, GUIReg.NombreTextField, GUIReg.CategoriaTextField, GUIReg.PrecioTextField, GUIReg.InventarioTextField);
 					JOptionPane.showMessageDialog(null, "Juguete agregado exitosamente");
 				} 
@@ -173,10 +207,12 @@ public class Controlador implements ActionListener
 			GUI.setVisible(true);					
 		}
 		//------------Mostrar------------------
+		short s;
 		if(e.getSource() == GUIMos.btnPrimero)
 		{
 			i = 1;
-			mostrar(i);
+			s = 3;
+			mostrar(i, s);
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
@@ -198,7 +234,8 @@ public class Controlador implements ActionListener
 		else if(e.getSource() == GUIMos.btnUltimo)
 		{
 			i = mod.getAlmacenSize();
-			mostrar(i);
+			s = 1;
+			mostrar(i,s);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
 			GUIMos.btnSig.setEnabled(false);
@@ -221,7 +258,8 @@ public class Controlador implements ActionListener
 			if(mod.getAlmacenSize() > 1)
 			{
 				i--;
-				mostrar(i);
+				s = 2;
+				mostrar(i, s);
 				GUIMos.btnSig.setEnabled(true);
 				if(i == 1)
 				{
@@ -246,7 +284,8 @@ public class Controlador implements ActionListener
 			if(mod.getAlmacenSize() > 1)
 			{
 				i++;
-				mostrar(i);
+				s = 1;
+				mostrar(i, s);
 				GUIMos.btnAnt.setEnabled(true);
 				if(i == mod.getAlmacenSize())
 				{
@@ -271,8 +310,8 @@ public class Controlador implements ActionListener
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnSig.setEnabled(false);
 			GUIMos.btnBorrar.setEnabled(false);
-			sustituir(GUIMos.InventarioTextField, GUIMos.NombreTextField, GUIMos.PrecioTextField, GUIMos.IdTextField, GUIMos.CategoriaTextField);
-			GUIMos.IdTextField.setEditable(true);
+			sustituir(GUIMos.InventarioTextField, GUIMos.NombreTextField, GUIMos.PrecioTextField, GUIMos.PrecioTextField, GUIMos.CategoriaTextField);
+			GUIMos.IdTextField.setEditable(false);
 			GUIMos.NombreTextField.setEditable(true);
 			GUIMos.CategoriaTextField.setEditable(true);
 			GUIMos.PrecioTextField.setEditable(true);
@@ -281,11 +320,15 @@ public class Controlador implements ActionListener
 		else if(e.getSource() == GUIMos.btnBorrar)
 		{
 			PreparedStatement pstm = null;
+			ResultSet rs = null;
 			
 			try 
 			{
 				pstm = con.prepareStatement("DELETE FROM articulo WHERE cve_art ="+i);
 				pstm.executeUpdate();
+				rs = pstm.executeQuery("SELECT * FROM articulo");
+				actualizarDatos(rs);
+				
 			} 
 			catch (SQLException e1) 
 			{
@@ -297,6 +340,7 @@ public class Controlador implements ActionListener
 				try 
 				{
 					if(pstm != null) pstm.close();
+					if(rs != null) rs.close();
 				} 
 				catch (SQLException e1) 
 				{
@@ -325,7 +369,7 @@ public class Controlador implements ActionListener
 		else if(e.getSource() == GUIMos.btnActualizar)
 		{
 			PreparedStatement pstm = null;
-			
+			ResultSet rs = null;
 			try 
 			{
 				cve = Integer.parseInt(GUIMos.IdTextField.getText());
@@ -336,7 +380,6 @@ public class Controlador implements ActionListener
 				
 				String query = "UPDATE articulo "
 						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ? WHERE cve_art ="+i;
-				pstm = null;
 				
 				pstm = con.prepareStatement(query);
 				pstm.setInt(1, cve);
@@ -345,7 +388,9 @@ public class Controlador implements ActionListener
 				pstm.setFloat(4, pre);
 				pstm.setInt(5, inv);
 				
-				pstm.execute();	
+				pstm.executeUpdate();
+				rs = pstm.executeQuery("SELECT * FROM articulo");
+				actualizarDatos(rs);
 			} 
 			catch (SQLException e1) 
 			{
@@ -357,11 +402,11 @@ public class Controlador implements ActionListener
 				try 
 				{
 					if(pstm != null) pstm.close();
+					if(rs != null) rs.close();
 				} 
 				catch (SQLException e1) 
 				{
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
 			}
 			JOptionPane.showMessageDialog(null, "Juguete actualizado exitosamente");
@@ -407,7 +452,7 @@ public class Controlador implements ActionListener
 		
 	}
 			
-	public void sustituir(JTextField A, JTextField B, JTextField C, JTextField D, JTextField E)
+	private void sustituir(JTextField A, JTextField B, JTextField C, JTextField D, JTextField E)
 	{
 		A.setText("");
 		B.setText("");
@@ -416,46 +461,26 @@ public class Controlador implements ActionListener
 		E.setText("");
 	}
 	
-	void mostrar(int i)
+	private void mostrar(int i, short op)
 	{
-		PreparedStatement pstm = null;
-		ResultSet rs = null;
-		
-		try 
+		Articulo A = mod.AlmacenGet(i);
+		if(A == null)
 		{
-			pstm = con.prepareStatement("SELECT * FROM articulo WHERE cve_art ="+i);
-			rs = pstm.executeQuery();
-			
-			while(rs.next())
+			switch(op)
 			{
-				GUIMos.IdTextField.setText(rs.getInt("cve_art")+"");
-				GUIMos.NombreTextField.setText(rs.getString("nom_art"));
-				GUIMos.CategoriaTextField.setText(rs.getString("cat_art"));
-				GUIMos.PrecioTextField.setText(rs.getFloat("pre_art")+"");
-				GUIMos.InventarioTextField.setText(rs.getInt("inv_art")+"");
-			}
-		} 
-		catch (SQLException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally
-		{
-			try 
-			{
-				if(rs != null) rs.close();
-				if(pstm != null) pstm.close();
-			} 
-			catch (SQLException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				case 1: i++; A = mod.AlmacenGet(i); break; //para >>
+				case 2: i--; A = mod.AlmacenGet(i); break; //para <<
+				case 3: break;
 			}
 		}
+		GUIMos.IdTextField.setText(""+A.getCve_art());
+		GUIMos.NombreTextField.setText(A.getNom_art());
+		GUIMos.CategoriaTextField.setText(A.getCat_art());
+		GUIMos.PrecioTextField.setText(""+A.getPre_art());
+		GUIMos.InventarioTextField.setText(""+A.getInv_art());
 	}
 	
-	private void pasarDatos(ResultSet rs)
+	private void convertirDatos(ResultSet rs)
 	{
 		try {
 				while(rs.next())
@@ -476,5 +501,24 @@ public class Controlador implements ActionListener
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void actualizarDatos(ResultSet rs)
+	{
+		try {
+				int cve = rs.getInt("cve_art");
+				String cat = rs.getString("cat_art");
+				String nom = rs.getString("nom_art");
+				float pre = rs.getFloat("pre_art");
+				int inv = rs.getInt("inv_art");
+				
+				Articulo art = new Articulo(cve, cat, nom, pre, inv);
+				mod.AlmacenAdd(art);
+			} 
+			catch (SQLException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 }

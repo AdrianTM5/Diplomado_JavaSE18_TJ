@@ -76,6 +76,7 @@ public class TJRegistrar extends JFrame
 		IdTextField = new JTextField();
 		IdTextField.setBounds(93, 29, 114, 19);
 		IdTextField.setColumns(10);
+		IdTextField.setEditable(false);
 		InfoPanel.add(IdTextField);
 		
 		NombreLabel = new JLabel("Nombre:");
