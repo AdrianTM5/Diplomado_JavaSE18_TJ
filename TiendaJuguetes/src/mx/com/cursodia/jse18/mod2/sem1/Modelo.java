@@ -1,6 +1,5 @@
 package mx.com.cursodia.jse18.mod2.sem1;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class Modelo

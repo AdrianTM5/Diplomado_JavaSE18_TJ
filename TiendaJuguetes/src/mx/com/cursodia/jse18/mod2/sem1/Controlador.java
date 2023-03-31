@@ -8,8 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
-
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -326,14 +324,7 @@ public class Controlador implements ActionListener
 			
 			try 
 			{
-				if(i == 0 || i == 1)
-				{
-					pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
-				}
-				else
-				{
-					pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+(i-1));
-				}
+				pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
 				rs = pstmt.executeQuery();
 				rs.next();
 				
@@ -389,8 +380,13 @@ public class Controlador implements ActionListener
 		{
 			PreparedStatement pstm = null;
 			ResultSet rs = null;
+			Statement st = null;
 			try 
 			{
+				pstm = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
+				rs = pstm.executeQuery();
+				rs.next();
+				
 				cve = Integer.parseInt(GUIMos.IdTextField.getText());
 				cat = GUIMos.CategoriaTextField.getText();
 				nom = GUIMos.NombreTextField.getText();
@@ -398,7 +394,7 @@ public class Controlador implements ActionListener
 				inv = Integer.parseInt(GUIMos.InventarioTextField.getText());
 				
 				String query = "UPDATE articulo "
-						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ? WHERE cve_art ="+i;
+						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ? WHERE cve_art ="+rs.getInt("cve_art");
 				
 				pstm = con.prepareStatement(query);
 				pstm.setInt(1, cve);
@@ -406,10 +402,13 @@ public class Controlador implements ActionListener
 				pstm.setString(3, nom);
 				pstm.setFloat(4, pre);
 				pstm.setInt(5, inv);
-				
 				pstm.executeUpdate();
-				rs = pstm.executeQuery("SELECT * FROM articulo");
-				actualizarDatos(rs);
+				pstm.close();
+				rs.close();
+				
+				st = con.createStatement();
+				rs = st.executeQuery("SELECT * FROM articulo");
+				convertirDatos(rs);
 			} 
 			catch (SQLException e1) 
 			{
@@ -420,6 +419,7 @@ public class Controlador implements ActionListener
 			{
 				try 
 				{
+					if(st != null) st.close();
 					if(pstm != null) pstm.close();
 					if(rs != null) rs.close();
 				} 
@@ -527,24 +527,5 @@ public class Controlador implements ActionListener
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private void actualizarDatos(ResultSet rs)
-	{
-		try {
-				int cve = rs.getInt("cve_art");
-				String cat = rs.getString("cat_art");
-				String nom = rs.getString("nom_art");
-				float pre = rs.getFloat("pre_art");
-				int inv = rs.getInt("inv_art");
-				
-				Articulo art = new Articulo(cve, cat, nom, pre, inv);
-				mod.AlmacenAdd(art);
-			} 
-			catch (SQLException e) 
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 	}
 }
