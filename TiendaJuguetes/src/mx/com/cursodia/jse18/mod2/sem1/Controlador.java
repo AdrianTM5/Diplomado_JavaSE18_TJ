@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -74,7 +75,6 @@ public class Controlador implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		System.out.println(mod.getAlmacenSize());
 		//------------Inicio------------------
 		if(e.getSource() == GUI.btnRegistrar)
 		{
@@ -112,11 +112,12 @@ public class Controlador implements ActionListener
 						e1.printStackTrace();
 					}
 			}
-			if(mod.getAlmacenSize() != 0)
+			if(mod.Almacen.size() != 0)
 			{
 				GUI.dispose();
 				GUIMos.setVisible(true);
 				GUIMos.setResizable(false);
+				GUIMos.btnPrimero.setEnabled(true);
 			}
 			else
 			{
@@ -210,13 +211,13 @@ public class Controlador implements ActionListener
 		short s;
 		if(e.getSource() == GUIMos.btnPrimero)
 		{
-			i = 1;
-			s = 3;
+			i = 0;
+			s = 1;
 			mostrar(i, s);
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
-			if(mod.getAlmacenSize() > 1)
+			if(mod.Almacen.size() > 1)
 			{
 				GUIMos.btnSig.setEnabled(true);
 				if(!GUIMos.btnUltimo.isEnabled())
@@ -233,13 +234,13 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUIMos.btnUltimo)
 		{
-			i = mod.getAlmacenSize();
-			s = 1;
+			i = mod.Almacen.size();
+			s = 2;
 			mostrar(i,s);
 			GUIMos.btnBorrar.setEnabled(true);
 			GUIMos.btnEditar.setEnabled(true);
 			GUIMos.btnSig.setEnabled(false);
-			if(mod.getAlmacenSize() > 1)
+			if(mod.Almacen.size() > 1)
 			{
 				GUIMos.btnAnt.setEnabled(true);
 				if(!GUIMos.btnPrimero.isEnabled())
@@ -255,13 +256,13 @@ public class Controlador implements ActionListener
 			GUIMos.btnUltimo.setEnabled(false);		}
 		else if(e.getSource() == GUIMos.btnAnt) // <<
 		{
-			if(mod.getAlmacenSize() > 1)
+			if(mod.Almacen.size() > 1)
 			{
 				i--;
 				s = 2;
 				mostrar(i, s);
 				GUIMos.btnSig.setEnabled(true);
-				if(i == 1)
+				if(i == 0)
 				{
 					if(GUIMos.btnPrimero.isEnabled())
 					{
@@ -281,13 +282,13 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUIMos.btnSig) // >>
 		{
-			if(mod.getAlmacenSize() > 1)
+			if(mod.Almacen.size() > 1)
 			{
 				i++;
 				s = 1;
 				mostrar(i, s);
 				GUIMos.btnAnt.setEnabled(true);
-				if(i == mod.getAlmacenSize())
+				if(i == mod.Almacen.size() - 1)
 				{
 					if(GUIMos.btnUltimo.isEnabled())
 					{
@@ -319,16 +320,32 @@ public class Controlador implements ActionListener
 		}
 		else if(e.getSource() == GUIMos.btnBorrar)
 		{
-			PreparedStatement pstm = null;
+			PreparedStatement pstmb = null, pstmt = null;
 			ResultSet rs = null;
+			Statement st = null;
 			
 			try 
 			{
-				pstm = con.prepareStatement("DELETE FROM articulo WHERE cve_art ="+i);
-				pstm.executeUpdate();
-				rs = pstm.executeQuery("SELECT * FROM articulo");
-				actualizarDatos(rs);
+				if(i == 0 || i == 1)
+				{
+					pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
+				}
+				else
+				{
+					pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+(i-1));
+				}
+				rs = pstmt.executeQuery();
+				rs.next();
 				
+				pstmb = con.prepareStatement("DELETE FROM articulo WHERE cve_art ="+rs.getInt("cve_art"));
+				pstmb.executeUpdate();
+				
+				if(!mod.Almacen.isEmpty())
+				{
+					st = con.createStatement();
+					rs = st.executeQuery("SELECT * FROM articulo");
+					convertirDatos(rs);
+				}
 			} 
 			catch (SQLException e1) 
 			{
@@ -339,8 +356,10 @@ public class Controlador implements ActionListener
 			{
 				try 
 				{
-					if(pstm != null) pstm.close();
+					if(pstmb != null) pstmb.close();
+					if(pstmt != null) pstmt.close();
 					if(rs != null) rs.close();
+					if(st != null) st.close();
 				} 
 				catch (SQLException e1) 
 				{
@@ -355,7 +374,7 @@ public class Controlador implements ActionListener
 			GUIMos.btnAnt.setEnabled(false);
 			GUIMos.btnSig.setEnabled(false);
 			GUIMos.btnEditar.setEnabled(false);
-			if(mod.getAlmacenSize() == 0)
+			if(mod.Almacen.size() == 0)
 			{
 				GUIMos.btnPrimero.setEnabled(false);
 				GUIMos.btnUltimo.setEnabled(false);
@@ -447,7 +466,7 @@ public class Controlador implements ActionListener
 		}
 		if(con != null)
 		{
-			System.out.println("Conexion exisota!");
+			System.out.println("Conexion exitosa!");
 		}
 		
 	}
@@ -463,15 +482,19 @@ public class Controlador implements ActionListener
 	
 	private void mostrar(int i, short op)
 	{
-		Articulo A = mod.AlmacenGet(i);
-		if(A == null)
+		Articulo A = mod.Almacen.get(i);
+		while(A == null)
 		{
-			switch(op)
+			if(A == null)
 			{
-				case 1: i++; A = mod.AlmacenGet(i); break; //para >>
-				case 2: i--; A = mod.AlmacenGet(i); break; //para <<
-				case 3: break;
+				switch(op)
+				{
+					case 1: i++;  break; //para >>
+					case 2: i--;  break; //para <<
+					case 3: break;
+				}
 			}
+			A = mod.Almacen.get(i);
 		}
 		GUIMos.IdTextField.setText(""+A.getCve_art());
 		GUIMos.NombreTextField.setText(A.getNom_art());
@@ -482,6 +505,10 @@ public class Controlador implements ActionListener
 	
 	private void convertirDatos(ResultSet rs)
 	{
+		if(!mod.Almacen.isEmpty())
+		{
+			mod.Almacen.clear();
+		}
 		try {
 				while(rs.next())
 				{
@@ -493,7 +520,6 @@ public class Controlador implements ActionListener
 					
 					Articulo art = new Articulo(cve, cat, nom, pre, inv);
 					mod.AlmacenAdd(art);
-					
 				}
 		} 
 		catch (SQLException e) 
