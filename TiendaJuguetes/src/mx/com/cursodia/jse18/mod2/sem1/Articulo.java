@@ -7,15 +7,17 @@ public class Articulo
 	private String nom_art;
 	private float pre_art;
 	private int inv_art;
+	private int prov_art;
 
 	
-	public Articulo(int cve_art, String cat_art, String nom_art, float pre_art, int inv_art)
+	public Articulo(int cve_art, String cat_art, String nom_art, float pre_art, int inv_art, int prov_art)
 	{
 		this.cve_art = cve_art;
 		this.cat_art = cat_art;
 		this.nom_art = nom_art;
 		this.pre_art = pre_art;
 		this.inv_art = inv_art;
+		this.prov_art = prov_art;
 	}
 	
 	public int getCve_art() 
@@ -77,6 +79,16 @@ public class Articulo
 		this.inv_art = inv_art;
 	}
 	
+	public int getProv_art()
+	{
+		return prov_art;
+	}
+
+	public void setProv_art(int prov_art) 
+	{
+		this.prov_art = prov_art;
+	}
+
 	public String toString()
 	{
 		return cve_art+" "+cat_art+" "+nom_art+" "+pre_art+" "+inv_art;

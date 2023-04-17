@@ -44,6 +44,8 @@ public class TJRegistrar extends JFrame
 	JTextField InventarioTextField;
 	private JLabel PrecioLabel;
 	JTextField PrecioTextField;
+	private JLabel ProovedorLabel;
+	JTextField ProveedorTextField;
 	/**
 	 * Create the frame.
 	 */
@@ -114,6 +116,15 @@ public class TJRegistrar extends JFrame
 		InventarioTextField.setBounds(351, 118, 114, 19);
 		InfoPanel.add(InventarioTextField);
 		InventarioTextField.setColumns(10);
+		
+		JLabel ProveedorLabel = new JLabel("Proveedor:");
+		ProveedorLabel.setBounds(254, 77, 84, 15);
+		InfoPanel.add(ProveedorLabel);
+		
+		ProveedorTextField = new JTextField();
+		ProveedorTextField.setColumns(10);
+		ProveedorTextField.setBounds(351, 73, 114, 19);
+		InfoPanel.add(ProveedorTextField);
 		
 		ButtonPanel = new JPanel();
 		ButtonPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));

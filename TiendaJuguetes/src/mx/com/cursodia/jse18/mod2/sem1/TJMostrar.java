@@ -28,6 +28,8 @@ public class TJMostrar extends JFrame
 	JButton btnActualizar;
 	
 	Thread ThreadM;
+	JTextField ProveedorTextField;
+	private JLabel ProveedorLabel;
 	
 	/**
 	 * Launch the application.
@@ -115,6 +117,16 @@ public class TJMostrar extends JFrame
 		InventarioTextField.setBounds(351, 118, 114, 19);
 		InventarioTextField.setEditable(false);
 		Infopanel.add(InventarioTextField);
+		
+		ProveedorTextField = new JTextField();
+		ProveedorTextField.setColumns(10);
+		ProveedorTextField.setBounds(351, 71, 114, 19);
+		Infopanel.add(ProveedorTextField);
+		
+		ProveedorLabel = new JLabel("Proveedor:");
+		ProveedorLabel.setBounds(254, 75, 84, 15);
+		ProveedorTextField.setEditable(false);
+		Infopanel.add(ProveedorLabel);
 		
 		panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
