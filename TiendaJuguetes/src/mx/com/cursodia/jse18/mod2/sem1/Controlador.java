@@ -384,12 +384,16 @@ public class Controlador implements ActionListener
 			PreparedStatement pstm = null;
 			ResultSet rs = null;
 			Statement st = null;
-			
+			if(i != 0 && i != 1)
+			{
+				i = i - 1;
+			}
 			try 
 			{
 				pstm = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
 				rs = pstm.executeQuery();
 				rs.next();
+				int ii = rs.getInt("cve_art");
 				
 				cve = Integer.parseInt(GUIMos.IdTextField.getText());
 				cat = GUIMos.CategoriaTextField.getText();
@@ -399,8 +403,7 @@ public class Controlador implements ActionListener
 				prov = Integer.parseInt(GUIMos.ProveedorTextField.getText());
 				
 				String query = "UPDATE articulo "
-						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ?, cveprov_art = ? "
-						+ "WHERE cve_art ="+rs.getInt("cve_art");
+						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ?, cveprov_art = ? WHERE cve_art ="+ ii;
 				
 				pstm = con.prepareStatement(query);
 				pstm.setInt(1, cve);
