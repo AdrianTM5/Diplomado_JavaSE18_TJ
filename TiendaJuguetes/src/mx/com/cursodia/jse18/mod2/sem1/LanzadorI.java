@@ -5,11 +5,13 @@ public class LanzadorI
 	public static void main(String[] args) 
 	{
 		Modelo mod = new Modelo();
-		TJInicio ini = new TJInicio();
-		TJRegistrar reg = new TJRegistrar();
-		TJMostrar mos = new TJMostrar();
+		GUI gui = new GUI();
+		GUIReg_A regA = new GUIReg_A();
+		GUIMos_A mosA = new GUIMos_A();
+		GUIMos_P mosP = new GUIMos_P();
+		GUIReg_P regP = new GUIReg_P();
 		
-		Controlador co = new Controlador(mod, ini, reg, mos);
-		co.conectar();
+		
+		Controlador co = new Controlador(mod, gui, regA, mosA, mosP, regP);
 	}
 }

@@ -8,479 +8,387 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class Controlador implements ActionListener
 {
 	Modelo mod;
-	TJInicio GUI;
-	TJRegistrar GUIReg;
-	TJMostrar GUIMos;
+	GUI GUI;
+	GUIReg_A GUIRegA;
+	GUIMos_A GUIMosA;
+	GUIMos_P GUIMosP;
+	GUIReg_P GUIRegP;
+	private ButtonGroup bg = new ButtonGroup();
 	
 	
-	public Controlador(Modelo mode, TJInicio ini, TJRegistrar reg, TJMostrar mos) 
+	public Controlador(Modelo mode, GUI gui, GUIReg_A regA, GUIMos_A mosA, GUIMos_P mosP, GUIReg_P regP) 
 	{
 		this.mod = mode;
-		this.GUI = ini;
-		this.GUIReg = reg;
-		this.GUIMos = mos;
+		this.GUI = gui;
+		this.GUIRegA = regA;
+		this.GUIMosA = mosA;
+		this.GUIMosP = mosP;
+		this.GUIRegP = regP;
 		inicializar();
 	}
 	
 	private void inicializar()
 	{
-		GUI.lanzar();
-		GUIReg.lanzar();
-		GUIMos.lanzar();
-		while(GUI.ThreadI.isAlive() == true && GUIMos.ThreadM.isAlive() == true && GUIReg.ThreadR.isAlive() == true)
+		if(con != null)
 		{
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			GUIRegA.lanzar();
+			GUIMosA.lanzar();
+			GUIMosP.lanzar();
+			GUIRegP.lanzar();
+			while(GUIMosA.ThreadM.isAlive() == true && GUIRegA.ThreadR.isAlive() == true && GUIMosP.ThreadM.isAlive() == true && GUIRegP.ThreadR.isAlive() == true)
+			{
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
-		//------------Inicio------------------
+		
+		//------------JMenuBar------------------
+		GUIMosA.MI_Articulo_A.addActionListener(this);
+		GUIMosA.MI_Proveedor_A.addActionListener(this);
+		GUIMosA.MI_Articulo_M.addActionListener(this);
+		GUIMosA.MI_Proveedor_M.addActionListener(this);
+		bg.add(GUIMosA.MI_Articulo_A);
+		bg.add(GUIMosA.MI_Proveedor_A);
+		bg.add(GUIMosA.MI_Articulo_M);
+		bg.add(GUIMosA.MI_Proveedor_M);
+		GUIRegA.MI_Articulo_A.addActionListener(this);
+		GUIRegA.MI_Proveedor_A.addActionListener(this);
+		GUIRegA.MI_Articulo_M.addActionListener(this);
+		GUIRegA.MI_Proveedor_M.addActionListener(this);
+		bg.add(GUIRegA.MI_Articulo_A);
+		bg.add(GUIRegA.MI_Proveedor_A);
+		bg.add(GUIRegA.MI_Articulo_M);
+		bg.add(GUIRegA.MI_Proveedor_M);
+		GUIMosP.MI_Articulo_A.addActionListener(this);
+		GUIMosP.MI_Proveedor_A.addActionListener(this);
+		GUIMosP.MI_Articulo_M.addActionListener(this);
+		GUIMosP.MI_Proveedor_M.addActionListener(this);
+		bg.add(GUIMosP.MI_Articulo_A);
+		bg.add(GUIMosP.MI_Proveedor_A);
+		bg.add(GUIMosP.MI_Articulo_M);
+		bg.add(GUIMosP.MI_Proveedor_M);
+		GUIRegP.MI_Articulo_A.addActionListener(this);
+		GUIRegP.MI_Proveedor_A.addActionListener(this);
+		GUIRegP.MI_Articulo_M.addActionListener(this);
+		GUIRegP.MI_Proveedor_M.addActionListener(this);
+		bg.add(GUIRegP.MI_Articulo_A);
+		bg.add(GUIRegP.MI_Proveedor_A);
+		bg.add(GUIRegP.MI_Articulo_M);
+		bg.add(GUIRegP.MI_Proveedor_M);
+		
+		//------------GUI------------------
 		GUI.setVisible(true);
 		GUI.setResizable(false);
-		GUI.btnRegistrar.addActionListener(this);
-		GUI.btnMostrar.addActionListener(this);
-		GUI.btnSalir.addActionListener(this);
-		//------------Registrar------------------
-		GUIReg.setVisible(false);
-		GUIReg.setResizable(false);
-		GUIReg.btnAgregar.addActionListener(this);
-		GUIReg.btnSalir.addActionListener(this);
-		//------------Mostrar------------------
-		GUIMos.setVisible(false);
-		GUIMos.setResizable(false);
-		GUIMos.btnPrimero.addActionListener(this);
-		GUIMos.btnUltimo.addActionListener(this);
-		GUIMos.btnSalir.addActionListener(this);
-		GUIMos.btnSig.addActionListener(this);
-		GUIMos.btnAnt.addActionListener(this);
-		GUIMos.btnEditar.addActionListener(this);
-		GUIMos.btnActualizar.addActionListener(this);
-		GUIMos.btnBorrar.addActionListener(this);
+		GUI.btnEnviar.addActionListener(this);
+		//------------RegistrarA------------------
+		GUIRegA.setVisible(false);
+		GUIRegA.setResizable(false);
+		GUIRegA.btnAgregar.addActionListener(this);
+		//------------MostrarA------------------
+		GUIMosA.setVisible(false);
+		GUIMosA.setResizable(false);
+		GUIMosA.btnPrimero.addActionListener(this);
+		GUIMosA.btnUltimo.addActionListener(this);
+		GUIMosA.btnSig.addActionListener(this);
+		GUIMosA.btnAnt.addActionListener(this);
+		GUIMosA.btnEditar.addActionListener(this);
+		GUIMosA.btnActualizar.addActionListener(this);
+		GUIMosA.btnBorrar.addActionListener(this);
+		//------------RegistrarP------------------
+		GUIRegP.setVisible(false);
+		GUIRegP.setResizable(false);
+		GUIRegP.btnAgregar.addActionListener(this);
+		//------------MostrarP------------------
+		GUIMosP.setVisible(false);
+		GUIMosP.setResizable(false);
+		GUIMosP.btnPrimero.addActionListener(this);
+		GUIMosP.btnUltimo.addActionListener(this);
+		GUIMosP.btnSig.addActionListener(this);
+		GUIMosP.btnAnt.addActionListener(this);
+		GUIMosP.btnEditar.addActionListener(this);
+		GUIMosP.btnActualizar.addActionListener(this);
+		GUIMosP.btnBorrar.addActionListener(this);
 	}
 		
 	@SuppressWarnings("static-access")
 	int i = 0;
-	Statement stat = null;
-	ResultSet rset = null;
 	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
-		//------------Inicio------------------
-		if(e.getSource() == GUI.btnRegistrar)
+		//------------GUI------------------
+		if(e.getSource() == GUI.btnEnviar)
 		{
-			GUI.dispose();
-			GUIReg.setVisible(true);
-			GUIReg.setResizable(false);
-		}
-		else if(e.getSource() == GUI.btnMostrar)
-		{
-			Statement st = null;
-			ResultSet rs = null;
-			try 
-			{
-				
-				st = con.createStatement();
-				rs = st.executeQuery("SELECT * FROM articulo");
-				convertirDatos(rs);
-				
-			}
-			catch (SQLException e1) 
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			finally
-			{
-					try 
-					{
-						if(st != null) st.close();
-						if(rs != null) rs.close();
-					} 
-					catch (SQLException e1) 
-					{
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-			}
-			if(mod.Almacen.size() != 0)
+			String usr, pw;
+			usr = GUI.UsuarioTextField.getText();
+			pw = GUI.PasswordField.getText();
+			
+			conectar(usr, pw);
+			if(con != null)
 			{
 				GUI.dispose();
-				GUIMos.setVisible(true);
-				GUIMos.setResizable(false);
-				GUIMos.btnPrimero.setEnabled(true);
+				GUIMosA.setVisible(true);
 			}
 			else
 			{
-				JOptionPane.showMessageDialog(null, "Error, primero registre un juguete");
+				JOptionPane.showMessageDialog(null, "Datos erroneos.", "Error", JOptionPane.ERROR_MESSAGE);
+
 			}
 		}
-		else if(e.getSource() == GUI.btnSalir)
+		//------------JMenuBar------------------
+		if(e.getSource() == GUIMosA.MI_Articulo_A || e.getSource() == GUIRegA.MI_Articulo_A || e.getSource() == GUIMosP.MI_Articulo_A || e.getSource() == GUIRegP.MI_Articulo_A )
+			//Boton agregar articulo
 		{
-			try 
-			{
-				if(stat != null) stat.close();
-				if(rset != null) rset.close();
-				if(con != null)
-				{
-					con.close(); 
-					System.out.println("Desconectado exitosamente!");
-				}
-			} 
-			catch (SQLException e1) 
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			System.exit(GUI.EXIT_ON_CLOSE);
+			if(GUIMosA.isVisible()) GUIMosA.setVisible(false);
+			else if(GUIMosP.isVisible()) GUIMosP.setVisible(false);
+			else if(GUIRegP.isVisible()) GUIRegP.setVisible(false);
+			
+			GUIRegA.setVisible(true);
+			GUIRegA.MI_Articulo_A.setSelected(true);
+		}
+		else if(e.getSource() == GUIMosA.MI_Proveedor_A || e.getSource() == GUIRegA.MI_Proveedor_A || e.getSource() == GUIMosP.MI_Proveedor_A || e.getSource() == GUIRegP.MI_Proveedor_A)
+			// Boton agregar proveedor
+		{
+			if(GUIRegA.isVisible()) GUIRegA.setVisible(false);
+			else if(GUIMosA.isVisible()) GUIMosA.setVisible(false);
+			else if(GUIMosP.isVisible()) GUIMosP.setVisible(false);
+			
+			GUIRegP.setVisible(true);
+			GUIRegP.MI_Proveedor_A.setSelected(true);
+		}
+		else if(e.getSource() == GUIMosA.MI_Articulo_M || e.getSource() == GUIRegA.MI_Articulo_M || e.getSource() == GUIMosP.MI_Articulo_M || e.getSource() == GUIRegP.MI_Articulo_M)
+			//Boton mostrar articulo
+		{
+			if(GUIRegA.isVisible()) GUIRegA.setVisible(false);
+			else if(GUIMosP.isVisible()) GUIMosP.setVisible(false);
+			else if(GUIRegP.isVisible()) GUIRegP.setVisible(false);
+			
+			GUIMosA.setVisible(true);
+			GUIMosA.MI_Articulo_M.setSelected(true);
+		}
+		else if(e.getSource() == GUIMosA.MI_Proveedor_M || e.getSource() == GUIRegA.MI_Proveedor_M || e.getSource() == GUIMosP.MI_Proveedor_M || e.getSource() == GUIRegP.MI_Proveedor_M)
+			//Boton mostrar proveedor
+		{
+			if(GUIRegA.isVisible()) GUIRegA.setVisible(false);
+			else if(GUIMosA.isVisible()) GUIMosA.setVisible(false);
+			else if(GUIRegP.isVisible()) GUIRegP.setVisible(false);
+			
+			GUIMosP.setVisible(true);
+			GUIMosP.MI_Proveedor_M.setSelected(true);
 		}
 		//------------Registrar------------------
 		int cve, inv, prov;  
 		String cat, nom;
 		float pre;
-		if(e.getSource() == GUIReg.btnAgregar)
+		if(e.getSource() == GUIRegA.btnAgregar)
 		{
-			try {
-					cat = GUIReg.CategoriaTextField.getText();
-					nom = GUIReg.NombreTextField.getText();
-					pre = Float.parseFloat(GUIReg.PrecioTextField.getText());
-					inv = Integer.parseInt(GUIReg.InventarioTextField.getText());
-					prov = Integer.parseInt(GUIReg.ProveedorTextField.getText());
-					
-					String query = "INSERT INTO articulo (cat_art,nom_art,pre_art,inv_art,cveprov_art) "
-							+ "VALUES (?,?,?,?,?)";
-					PreparedStatement pstm = null;
-					Statement st = null;
-					ResultSet rs = null;
-					try 
-					{
-						pstm = con.prepareStatement(query);
-						pstm.setString(1, cat);
-						pstm.setString(2, nom);
-						pstm.setFloat(3, pre);
-						pstm.setInt(4, inv);
-						pstm.setInt(5, prov);
-						
-						pstm.execute();
-						
-						st = con.createStatement();
-						rs = st.executeQuery("SELECT * FROM articulo");
-						convertirDatos(rs);
-						
-					}
-					catch (SQLException e1) 
-					{
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					finally
-					{
-							try 
-							{
-								if(pstm != null) pstm.close();
-								if(st != null) st.close();
-								if(rs != null) rs.close();
-							} 
-							catch (SQLException e1) 
-							{
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-					}
-					sustituir(GUIReg.IdTextField, GUIReg.NombreTextField, GUIReg.CategoriaTextField, GUIReg.PrecioTextField, GUIReg.InventarioTextField, GUIReg.ProveedorTextField);
-					JOptionPane.showMessageDialog(null, "Juguete agregado exitosamente");
-				} 
-			catch (NumberFormatException e2)
-				{
-					JOptionPane.showMessageDialog(null, "Favor de llenar todos los campos");
-				}
-		}
-		else if(e.getSource() == GUIReg.btnSalir)
-		{
-			GUIReg.dispose();
-			GUI.setVisible(true);					
+				cat = GUIRegA.CategoriaTextField.getText();
+				nom = GUIRegA.NombreTextField.getText();
+				pre = Float.parseFloat(GUIRegA.PrecioTextField.getText());
+				inv = Integer.parseInt(GUIRegA.InventarioTextField.getText());
+				prov = Integer.parseInt(GUIRegA.ProveedorTextField.getText());
+				mod.AlmacenAdd(cat, nom, pre, inv, prov);
+				
+				sustituir(GUIRegA.IdTextField, GUIRegA.NombreTextField, GUIRegA.CategoriaTextField, GUIRegA.PrecioTextField, GUIRegA.InventarioTextField, GUIRegA.ProveedorTextField);
+				JOptionPane.showMessageDialog(null, "Juguete agregado exitosamente");
 		}
 		//------------Mostrar------------------
 		short s;
-		if(e.getSource() == GUIMos.btnPrimero)
+		if(e.getSource() == GUIMosA.btnPrimero)
 		{
 			i = 0;
 			s = 1;
 			mostrar(i, s);
-			GUIMos.btnAnt.setEnabled(false);
-			GUIMos.btnBorrar.setEnabled(true);
-			GUIMos.btnEditar.setEnabled(true);
+			GUIMosA.btnAnt.setEnabled(false);
+			GUIMosA.btnBorrar.setEnabled(true);
+			GUIMosA.btnEditar.setEnabled(true);
 			if(mod.Almacen.size() > 1)
 			{
-				GUIMos.btnSig.setEnabled(true);
-				if(!GUIMos.btnUltimo.isEnabled())
+				GUIMosA.btnSig.setEnabled(true);
+				if(!GUIMosA.btnUltimo.isEnabled())
 				{
-					GUIMos.btnUltimo.setEnabled(true);
+					GUIMosA.btnUltimo.setEnabled(true);
 				}
 			}
 			else
 			{
-				GUIMos.btnSig.setEnabled(false);
+				GUIMosA.btnSig.setEnabled(false);
 					
 			}
-			GUIMos.btnPrimero.setEnabled(false);
+			GUIMosA.btnPrimero.setEnabled(false);
 		}
-		else if(e.getSource() == GUIMos.btnUltimo)
+		else if(e.getSource() == GUIMosA.btnUltimo)
 		{
-			i = mod.Almacen.size();
+			if(mod.Almacen.size() == 1)
+			{
+				i = mod.Almacen.size();
+			}
+			else if(mod.Almacen.size() > 1)
+			{
+				i = mod.Almacen.size() - 1;	
+			}
 			s = 2;
 			mostrar(i,s);
-			GUIMos.btnBorrar.setEnabled(true);
-			GUIMos.btnEditar.setEnabled(true);
-			GUIMos.btnSig.setEnabled(false);
+			GUIMosA.btnBorrar.setEnabled(true);
+			GUIMosA.btnEditar.setEnabled(true);
+			GUIMosA.btnSig.setEnabled(false);
 			if(mod.Almacen.size() > 1)
 			{
-				GUIMos.btnAnt.setEnabled(true);
-				if(!GUIMos.btnPrimero.isEnabled())
+				GUIMosA.btnAnt.setEnabled(true);
+				if(!GUIMosA.btnPrimero.isEnabled())
 				{
-					GUIMos.btnPrimero.setEnabled(true);
+					GUIMosA.btnPrimero.setEnabled(true);
 				}
 			}
 			else
 			{
-				GUIMos.btnAnt.setEnabled(false);
+				GUIMosA.btnAnt.setEnabled(false);
 					
 			}
-			GUIMos.btnUltimo.setEnabled(false);		}
-		else if(e.getSource() == GUIMos.btnAnt) // <<
+			GUIMosA.btnUltimo.setEnabled(false);		}
+		else if(e.getSource() == GUIMosA.btnAnt) // <<
 		{
 			if(mod.Almacen.size() > 1)
 			{
 				i--;
 				s = 2;
 				mostrar(i, s);
-				GUIMos.btnSig.setEnabled(true);
+				GUIMosA.btnSig.setEnabled(true);
 				if(i == 0)
 				{
-					if(GUIMos.btnPrimero.isEnabled())
+					if(GUIMosA.btnPrimero.isEnabled())
 					{
-						GUIMos.btnPrimero.setEnabled(false);
+						GUIMosA.btnPrimero.setEnabled(false);
 					}
-					GUIMos.btnAnt.setEnabled(false);
+					GUIMosA.btnAnt.setEnabled(false);
 				}
-				if(!GUIMos.btnUltimo.isEnabled())
+				if(!GUIMosA.btnUltimo.isEnabled())
 				{
-					GUIMos.btnUltimo.setEnabled(true);
+					GUIMosA.btnUltimo.setEnabled(true);
 				}
 			}
-			if(!GUIMos.btnUltimo.isEnabled())
+			if(!GUIMosA.btnUltimo.isEnabled())
 			{
-				GUIMos.btnUltimo.setEnabled(true);
+				GUIMosA.btnUltimo.setEnabled(true);
 			}
 		}
-		else if(e.getSource() == GUIMos.btnSig) // >>
+		else if(e.getSource() == GUIMosA.btnSig) // >>
 		{
 			if(mod.Almacen.size() > 1)
 			{
 				i++;
 				s = 1;
 				mostrar(i, s);
-				GUIMos.btnAnt.setEnabled(true);
+				GUIMosA.btnAnt.setEnabled(true);
 				if(i == mod.Almacen.size() - 1)
 				{
-					if(GUIMos.btnUltimo.isEnabled())
+					if(GUIMosA.btnUltimo.isEnabled())
 					{
-						GUIMos.btnUltimo.setEnabled(false);
+						GUIMosA.btnUltimo.setEnabled(false);
 					}
-					GUIMos.btnSig.setEnabled(false);
+					GUIMosA.btnSig.setEnabled(false);
 				}
-				if(!GUIMos.btnPrimero.isEnabled())
+				if(!GUIMosA.btnPrimero.isEnabled())
 				{
-					GUIMos.btnPrimero.setEnabled(true);
+					GUIMosA.btnPrimero.setEnabled(true);
 				}
 			}
 		}
-		else if(e.getSource() == GUIMos.btnEditar)
+		else if(e.getSource() == GUIMosA.btnEditar)
 		{
-			GUIMos.btnActualizar.setEnabled(true);
-			GUIMos.btnPrimero.setEnabled(false);
-			GUIMos.btnUltimo.setEnabled(false);
-			GUIMos.btnSalir.setEnabled(false);
-			GUIMos.btnAnt.setEnabled(false);
-			GUIMos.btnSig.setEnabled(false);
-			GUIMos.btnBorrar.setEnabled(false);
-			sustituir(GUIMos.InventarioTextField, GUIMos.NombreTextField, GUIMos.PrecioTextField, GUIMos.PrecioTextField, GUIMos.CategoriaTextField, GUIMos.ProveedorTextField);
-			GUIMos.IdTextField.setEditable(false);
-			GUIMos.NombreTextField.setEditable(true);
-			GUIMos.CategoriaTextField.setEditable(true);
-			GUIMos.PrecioTextField.setEditable(true);
-			GUIMos.InventarioTextField.setEditable(true);
-			GUIMos.ProveedorTextField.setEditable(true);
+			GUIMosA.btnActualizar.setEnabled(true);
+			GUIMosA.btnPrimero.setEnabled(false);
+			GUIMosA.btnUltimo.setEnabled(false);
+			GUIMosA.btnAnt.setEnabled(false);
+			GUIMosA.btnSig.setEnabled(false);
+			GUIMosA.btnBorrar.setEnabled(false);
+			sustituir(GUIMosA.InventarioTextField, GUIMosA.NombreTextField, GUIMosA.PrecioTextField, GUIMosA.PrecioTextField, GUIMosA.CategoriaTextField, GUIMosA.ProveedorTextField);
+			GUIMosA.IdTextField.setEditable(false);
+			GUIMosA.NombreTextField.setEditable(true);
+			GUIMosA.CategoriaTextField.setEditable(true);
+			GUIMosA.PrecioTextField.setEditable(true);
+			GUIMosA.InventarioTextField.setEditable(true);
+			GUIMosA.ProveedorTextField.setEditable(true);
 		}
-		else if(e.getSource() == GUIMos.btnBorrar)
+		else if(e.getSource() == GUIMosA.btnBorrar)
 		{
-			PreparedStatement pstmb = null, pstmt = null;
-			ResultSet rs = null;
-			Statement st = null;
-			
-			try 
+			if(!mod.Almacen.isEmpty())
 			{
-				pstmt = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
-				rs = pstmt.executeQuery();
-				rs.next();
+				mod.Almacen.remove(i);
 				
-				pstmb = con.prepareStatement("DELETE FROM articulo WHERE cve_art ="+rs.getInt("cve_art"));
-				pstmb.executeUpdate();
-				
-				if(!mod.Almacen.isEmpty())
-				{
-					st = con.createStatement();
-					rs = st.executeQuery("SELECT * FROM articulo");
-					convertirDatos(rs);
-				}
-			} 
-			catch (SQLException e1) 
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				sustituir(GUIMosA.IdTextField, GUIMosA.NombreTextField, GUIMosA.CategoriaTextField, GUIMosA.PrecioTextField, GUIMosA.InventarioTextField, GUIMosA.ProveedorTextField);
+				JOptionPane.showMessageDialog(null, "Juguete eliminado exitosamente");
+				GUIMosA.btnBorrar.setEnabled(false);
+				GUIMosA.btnAnt.setEnabled(false);
+				GUIMosA.btnSig.setEnabled(false);
+				GUIMosA.btnEditar.setEnabled(false);
 			}
-			finally
-			{
-				try 
-				{
-					if(pstmb != null) pstmb.close();
-					if(pstmt != null) pstmt.close();
-					if(rs != null) rs.close();
-					if(st != null) st.close();
-				} 
-				catch (SQLException e1) 
-				{
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-			
-			sustituir(GUIMos.IdTextField, GUIMos.NombreTextField, GUIMos.CategoriaTextField, GUIMos.PrecioTextField, GUIMos.InventarioTextField, GUIMos.ProveedorTextField);
-			JOptionPane.showMessageDialog(null, "Juguete eliminado exitosamente");
-			GUIMos.btnBorrar.setEnabled(false);
-			GUIMos.btnAnt.setEnabled(false);
-			GUIMos.btnSig.setEnabled(false);
-			GUIMos.btnEditar.setEnabled(false);
 			if(mod.Almacen.size() == 0)
 			{
-				GUIMos.btnPrimero.setEnabled(false);
-				GUIMos.btnUltimo.setEnabled(false);
+				GUIMosA.btnPrimero.setEnabled(false);
+				GUIMosA.btnUltimo.setEnabled(false);
 			}
 			else
 			{
-				GUIMos.btnPrimero.setEnabled(true);
-				GUIMos.btnUltimo.setEnabled(true);
+				GUIMosA.btnPrimero.setEnabled(true);
+				GUIMosA.btnUltimo.setEnabled(true);
 			}
 		}
-		else if(e.getSource() == GUIMos.btnActualizar)
+		else if(e.getSource() == GUIMosA.btnActualizar)
 		{
-			PreparedStatement pstm = null;
-			ResultSet rs = null;
-			Statement st = null;
-			if(i != 0 && i != 1)
-			{
-				i = i - 1;
-			}
-			try 
-			{
-				pstm = con.prepareStatement("SELECT * FROM articulo LIMIT 1 OFFSET "+i);
-				rs = pstm.executeQuery();
-				rs.next();
-				int ii = rs.getInt("cve_art");
-				
-				cve = Integer.parseInt(GUIMos.IdTextField.getText());
-				cat = GUIMos.CategoriaTextField.getText();
-				nom = GUIMos.NombreTextField.getText();
-				pre = Float.parseFloat(GUIMos.PrecioTextField.getText());
-				inv = Integer.parseInt(GUIMos.InventarioTextField.getText());
-				prov = Integer.parseInt(GUIMos.ProveedorTextField.getText());
-				
-				String query = "UPDATE articulo "
-						+ "SET cve_art = ?, cat_art = ?, nom_art = ?, pre_art = ?, inv_art = ?, cveprov_art = ? WHERE cve_art ="+ ii;
-				
-				pstm = con.prepareStatement(query);
-				pstm.setInt(1, cve);
-				pstm.setString(2, cat);
-				pstm.setString(3, nom);
-				pstm.setFloat(4, pre);
-				pstm.setInt(5, inv);
-				pstm.setInt(6, prov);
-				pstm.executeUpdate();
-				pstm.close();
-				rs.close();
-				
-				st = con.createStatement();
-				rs = st.executeQuery("SELECT * FROM articulo");
-				convertirDatos(rs);
-			} 
-			catch (SQLException e1 ) 
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-//				JOptionPane.showMessageDialog(null, "Favor de llenar todos los campos");
-			}
-			finally
-			{
-				try 
-				{
-					if(st != null) st.close();
-					if(pstm != null) pstm.close();
-					if(rs != null) rs.close();
-				} 
-				catch (SQLException e1) 
-				{
-					// TODO Auto-generated catch block
-				}
-			}
+			cve = Integer.parseInt(GUIMosA.IdTextField.getText());
+			cat = GUIMosA.CategoriaTextField.getText();
+			nom = GUIMosA.NombreTextField.getText();
+			pre = Float.parseFloat(GUIMosA.PrecioTextField.getText());
+			inv = Integer.parseInt(GUIMosA.InventarioTextField.getText());
+			prov = Integer.parseInt(GUIMosA.ProveedorTextField.getText());
+			
+			mod.Almacen.get(i).setCve_art(cve);
+			mod.Almacen.get(i).setCat_art(cat);
+			mod.Almacen.get(i).setNom_art(nom);
+			mod.Almacen.get(i).setPre_art(pre);
+			mod.Almacen.get(i).setInv_art(inv);
+			mod.Almacen.get(i).setProv_art(prov);
+			
 			JOptionPane.showMessageDialog(null, "Juguete actualizado exitosamente");
 			
-			GUIMos.btnPrimero.setEnabled(true);
-			GUIMos.btnUltimo.setEnabled(true);
-			GUIMos.btnSalir.setEnabled(true);
-			GUIMos.btnActualizar.setEnabled(false);
+			GUIMosA.btnPrimero.setEnabled(true);
+			GUIMosA.btnUltimo.setEnabled(true);
+			GUIMosA.btnActualizar.setEnabled(false);
 				
-			GUIMos.IdTextField.setEditable(false);
-			GUIMos.NombreTextField.setEditable(false);
-			GUIMos.CategoriaTextField.setEditable(false);
-			GUIMos.	PrecioTextField.setEditable(false);
-			GUIMos.InventarioTextField.setEditable(false);
-			GUIMos.ProveedorTextField.setEditable(false);
-		}
-		else if(e.getSource() == GUIMos.btnSalir) 
-		{
-			GUIMos.dispose();
-			GUI.setVisible(true);
+			GUIMosA.IdTextField.setEditable(false);
+			GUIMosA.NombreTextField.setEditable(false);
+			GUIMosA.CategoriaTextField.setEditable(false);
+			GUIMosA.PrecioTextField.setEditable(false);
+			GUIMosA.InventarioTextField.setEditable(false);
+			GUIMosA.ProveedorTextField.setEditable(false);
 		}
 	}
 	
 	Connection con;
-	void conectar()
+	void conectar(String usr, String pw)
 	{
 		String server = "jdbc:mysql://localhost/tiendajuguetes";
-		String user = "root"; //modificar despues
-		String password = "";
+		usr = "Adri_TM5";
+		pw = "Mario654321!";
 		
 		try 
 		{
-			con = DriverManager.getConnection(server,user,password);
+			con = DriverManager.getConnection(server,usr,pw);
 			
 		} 
-		catch (SQLException e) 
-		{
-			System.out.println("Error en la conexion");
-		}
-		if(con != null)
-		{
-			System.out.println("Conexion exitosa!");
-		}
-		
+		catch (SQLException e) {}
 	}
 			
 	private void sustituir(JTextField A, JTextField B, JTextField C, JTextField D, JTextField E, JTextField F)
@@ -509,38 +417,11 @@ public class Controlador implements ActionListener
 			}
 			A = mod.Almacen.get(i);
 		}
-		GUIMos.IdTextField.setText(""+A.getCve_art());
-		GUIMos.NombreTextField.setText(A.getNom_art());
-		GUIMos.CategoriaTextField.setText(A.getCat_art());
-		GUIMos.PrecioTextField.setText(""+A.getPre_art());
-		GUIMos.InventarioTextField.setText(""+A.getInv_art());
-		GUIMos.ProveedorTextField.setText(""+A.getProv_art());
-	}
-	
-	private void convertirDatos(ResultSet rs)
-	{
-		if(!mod.Almacen.isEmpty())
-		{
-			mod.Almacen.clear();
-		}
-		try {
-				while(rs.next())
-				{
-					int cve = rs.getInt("cve_art");
-					String cat = rs.getString("cat_art");
-					String nom = rs.getString("nom_art");
-					float pre = rs.getFloat("pre_art");
-					int inv = rs.getInt("inv_art");
-					int prov = rs.getInt("cveprov_art");
-					
-					Articulo art = new Articulo(cve, cat, nom, pre, inv, prov);
-					mod.AlmacenAdd(art);
-				}
-		} 
-		catch (SQLException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		GUIMosA.IdTextField.setText(""+A.getCve_art());
+		GUIMosA.NombreTextField.setText(A.getNom_art());
+		GUIMosA.CategoriaTextField.setText(A.getCat_art());
+		GUIMosA.PrecioTextField.setText(""+A.getPre_art());
+		GUIMosA.InventarioTextField.setText(""+A.getInv_art());
+		GUIMosA.ProveedorTextField.setText(""+A.getProv_art());
 	}
 }

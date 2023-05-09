@@ -1,5 +1,6 @@
 package mx.com.cursodia.jse18.mod2.sem1;
 
+import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -11,14 +12,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-public class GUIMos_A extends JFrame
+public class GUIMos_P extends JFrame
 {
 	private JPanel contentPane;
 	JTextField IdTextField;
 	JTextField NombreTextField;
-	JTextField CategoriaTextField;
-	JTextField PrecioTextField;
-	JTextField InventarioTextField;
+	JTextField TelefonoTextField;
+	JTextField DireccionTextField;
 	private JPanel panel;
 	JButton btnPrimero;
 	JButton btnEditar;
@@ -29,8 +29,8 @@ public class GUIMos_A extends JFrame
 	JButton btnActualizar;
 	
 	Thread ThreadM;
-	JTextField ProveedorTextField;
-	private JLabel ProveedorLabel;
+	JTextField EmailTextField;
+	private JLabel EmailLabel;
 	private JMenuBar menuBar;
 	private JMenu JMenuAgregar;
 	private JMenu JMenuMostrar;
@@ -58,9 +58,9 @@ public class GUIMos_A extends JFrame
 	/**
 	 * Create the frame.
 	 */
-	public GUIMos_A() 
+	public GUIMos_P() 
 	{
-		setTitle("Mostrar Articulo");
+		setTitle("Mostrar Proveedor");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 550, 400);
 		contentPane = new JPanel();
@@ -77,7 +77,7 @@ public class GUIMos_A extends JFrame
 		Infopanel.setLayout(null);
 		
 		JLabel IdLabel = new JLabel("Id:");
-		IdLabel.setBounds(67, 31, 33, 15);
+		IdLabel.setBounds(65, 31, 26, 15);
 		Infopanel.add(IdLabel);
 		
 		IdTextField = new JTextField();
@@ -87,54 +87,44 @@ public class GUIMos_A extends JFrame
 		IdTextField.setColumns(10);
 		
 		JLabel NombreLabel = new JLabel("Nombre:");
-		NombreLabel.setBounds(27, 75, 60, 15);
+		NombreLabel.setBounds(28, 123, 62, 15);
 		Infopanel.add(NombreLabel);
 		
 		NombreTextField = new JTextField();
 		NombreTextField.setColumns(10);
-		NombreTextField.setBounds(93, 73, 114, 19);
+		NombreTextField.setBounds(93, 120, 114, 19);
 		NombreTextField.setEditable(false);
 		Infopanel.add(NombreTextField);
 		
-		JLabel CategoriaLabel = new JLabel("Categoria:");
-		CategoriaLabel.setBounds(12, 122, 75, 15);
-		Infopanel.add(CategoriaLabel);
+		JLabel TelefonoLabel = new JLabel("Telefono:");
+		TelefonoLabel.setBounds(286, 31, 62, 15);
+		Infopanel.add(TelefonoLabel);
 		
-		CategoriaTextField = new JTextField();
-		CategoriaTextField.setColumns(10);
-		CategoriaTextField.setBounds(93, 120, 114, 19);
-		CategoriaTextField.setEditable(false);
-		Infopanel.add(CategoriaTextField);
+		TelefonoTextField = new JTextField();
+		TelefonoTextField.setColumns(10);
+		TelefonoTextField.setBounds(351, 29, 114, 19);
+		TelefonoTextField.setEditable(false);
+		Infopanel.add(TelefonoTextField);
 		
-		JLabel PrecioLabel = new JLabel("Precio:");
-		PrecioLabel.setBounds(284, 29, 49, 15);
-		Infopanel.add(PrecioLabel);
+		JLabel DireccionLabel = new JLabel("Dirección:");
+		DireccionLabel.setBounds(286, 123, 62, 15);
+		Infopanel.add(DireccionLabel);
 		
-		PrecioTextField = new JTextField();
-		PrecioTextField.setColumns(10);
-		PrecioTextField.setBounds(351, 29, 114, 19);
-		PrecioTextField.setEditable(false);
-		Infopanel.add(PrecioTextField);
+		DireccionTextField = new JTextField();
+		DireccionTextField.setColumns(10);
+		DireccionTextField.setBounds(351, 118, 114, 19);
+		DireccionTextField.setEditable(false);
+		Infopanel.add(DireccionTextField);
 		
-		JLabel InventarioLabel = new JLabel("Existencias:");
-		InventarioLabel.setBounds(254, 122, 84, 15);
-		Infopanel.add(InventarioLabel);
+		EmailTextField = new JTextField();
+		EmailTextField.setColumns(10);
+		EmailTextField.setBounds(351, 71, 114, 19);
+		Infopanel.add(EmailTextField);
 		
-		InventarioTextField = new JTextField();
-		InventarioTextField.setColumns(10);
-		InventarioTextField.setBounds(351, 118, 114, 19);
-		InventarioTextField.setEditable(false);
-		Infopanel.add(InventarioTextField);
-		
-		ProveedorTextField = new JTextField();
-		ProveedorTextField.setColumns(10);
-		ProveedorTextField.setBounds(351, 71, 114, 19);
-		Infopanel.add(ProveedorTextField);
-		
-		ProveedorLabel = new JLabel("Proveedor:");
-		ProveedorLabel.setBounds(254, 75, 84, 15);
-		ProveedorTextField.setEditable(false);
-		Infopanel.add(ProveedorLabel);
+		EmailLabel = new JLabel("Correo Electronico:");
+		EmailLabel.setBounds(228, 74, 120, 15);
+		EmailTextField.setEditable(false);
+		Infopanel.add(EmailLabel);
 		
 		panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
