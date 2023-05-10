@@ -61,7 +61,7 @@ public class GUIMos_P extends JFrame
 	public GUIMos_P() 
 	{
 		setTitle("Mostrar Proveedor");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 550, 400);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));

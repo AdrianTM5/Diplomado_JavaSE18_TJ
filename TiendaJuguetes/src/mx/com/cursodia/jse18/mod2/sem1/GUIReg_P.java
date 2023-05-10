@@ -42,9 +42,9 @@ public class GUIReg_P extends JFrame
 	private JMenuBar menuBar;
 	private JMenu JMenuAgregar;
 	private JMenu JMenuMostrar;
-	private JTextField TelefonoTextField;
-	private JTextField DireccionTextField;
-	private JTextField EmailTextField;
+	JTextField TelefonoTextField;
+	JTextField DireccionTextField;
+	JTextField EmailTextField;
 	JRadioButtonMenuItem MI_Articulo_A;
 	JRadioButtonMenuItem MI_Proveedor_A;
 	JRadioButtonMenuItem MI_Articulo_M;
@@ -58,7 +58,7 @@ public class GUIReg_P extends JFrame
 	public GUIReg_P()
 	{
 		setTitle("Agregar Proveedor");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 550, 400);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));

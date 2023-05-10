@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,6 +20,8 @@ public class Controlador implements ActionListener
 	GUIMos_A GUIMosA;
 	GUIMos_P GUIMosP;
 	GUIReg_P GUIRegP;
+	Connection con;
+	
 	private ButtonGroup bg = new ButtonGroup();
 	
 	
@@ -137,8 +138,41 @@ public class Controlador implements ActionListener
 			conectar(usr, pw);
 			if(con != null)
 			{
-				GUI.dispose();
-				GUIMosA.setVisible(true);
+				Statement st = null;
+				ResultSet rs = null;
+				try 
+				{
+								
+					st = con.createStatement();
+					rs = st.executeQuery("SELECT * FROM articulo");
+					convertirDatos(rs, (short) 0);
+					st.close();
+					rs.close();
+					
+					st = con.createStatement();
+					rs = st.executeQuery("SELECT * FROM proveedores");
+					convertirDatos(rs, (short) 1);
+					}
+					catch (SQLException e1) 
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					finally
+					{
+						try 
+						{
+							if(st != null) st.close();
+							if(rs != null) rs.close();
+						} 
+						catch (SQLException e1) 
+						{
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						GUI.dispose();
+						GUIMosA.setVisible(true);
+					}
 			}
 			else
 			{
@@ -176,6 +210,13 @@ public class Controlador implements ActionListener
 			
 			GUIMosA.setVisible(true);
 			GUIMosA.MI_Articulo_M.setSelected(true);
+			GUIMosA.btnPrimero.setEnabled(true);
+			GUIMosA.btnUltimo.setEnabled(true);
+			GUIMosA.btnActualizar.setEnabled(false);
+			GUIMosA.btnEditar.setEnabled(false);
+			GUIMosA.btnBorrar.setEnabled(false);
+			GUIMosA.btnAnt.setEnabled(false);
+			GUIMosA.btnSig.setEnabled(false);
 		}
 		else if(e.getSource() == GUIMosA.MI_Proveedor_M || e.getSource() == GUIRegA.MI_Proveedor_M || e.getSource() == GUIMosP.MI_Proveedor_M || e.getSource() == GUIRegP.MI_Proveedor_M)
 			//Boton mostrar proveedor
@@ -186,13 +227,23 @@ public class Controlador implements ActionListener
 			
 			GUIMosP.setVisible(true);
 			GUIMosP.MI_Proveedor_M.setSelected(true);
+			GUIMosP.btnPrimero.setEnabled(true);
+			GUIMosP.btnUltimo.setEnabled(true);
+			GUIMosP.btnActualizar.setEnabled(false);
+			GUIMosP.btnEditar.setEnabled(false);
+			GUIMosP.btnBorrar.setEnabled(false);
+			GUIMosP.btnAnt.setEnabled(false);
+			GUIMosP.btnSig.setEnabled(false);
 		}
 		//------------Registrar------------------
 		int cve, inv, prov;  
-		String cat, nom;
+		String cat, nom, tel, email, dir;;
 		float pre;
-		if(e.getSource() == GUIRegA.btnAgregar)
+		short s = 0;
+		if(e.getSource() == GUIRegA.btnAgregar || e.getSource() == GUIRegP.btnAgregar)
 		{
+			if(e.getSource() == GUIRegA.btnAgregar)
+			{
 				cat = GUIRegA.CategoriaTextField.getText();
 				nom = GUIRegA.NombreTextField.getText();
 				pre = Float.parseFloat(GUIRegA.PrecioTextField.getText());
@@ -202,181 +253,368 @@ public class Controlador implements ActionListener
 				
 				sustituir(GUIRegA.IdTextField, GUIRegA.NombreTextField, GUIRegA.CategoriaTextField, GUIRegA.PrecioTextField, GUIRegA.InventarioTextField, GUIRegA.ProveedorTextField);
 				JOptionPane.showMessageDialog(null, "Juguete agregado exitosamente");
+			}
+			else if(e.getSource() == GUIRegP.btnAgregar)
+			{
+				nom = GUIRegP.NombreTextField.getText();
+				tel = GUIRegP.TelefonoTextField.getText();
+				email = GUIRegP.EmailTextField.getText();
+				dir = GUIRegP.DireccionTextField.getText();
+				mod.AlmacenPAdd(nom, tel, email, dir);
+				
+				sustituir(GUIRegP.NombreTextField, GUIRegP.TelefonoTextField, GUIRegP.EmailTextField, GUIRegP.DireccionTextField);
+				JOptionPane.showMessageDialog(null, "Proveedor agregado exitosamente");
+			}
 		}
 		//------------Mostrar------------------
-		short s;
-		if(e.getSource() == GUIMosA.btnPrimero)
+		if(e.getSource() == GUIMosA.btnPrimero || e.getSource() == GUIMosP.btnPrimero)
 		{
 			i = 0;
-			s = 1;
-			mostrar(i, s);
-			GUIMosA.btnAnt.setEnabled(false);
-			GUIMosA.btnBorrar.setEnabled(true);
-			GUIMosA.btnEditar.setEnabled(true);
-			if(mod.Almacen.size() > 1)
+			if(e.getSource() == GUIMosA.btnPrimero)
 			{
-				GUIMosA.btnSig.setEnabled(true);
-				if(!GUIMosA.btnUltimo.isEnabled())
-				{
-					GUIMosA.btnUltimo.setEnabled(true);
-				}
-			}
-			else
-			{
-				GUIMosA.btnSig.setEnabled(false);
-					
-			}
-			GUIMosA.btnPrimero.setEnabled(false);
-		}
-		else if(e.getSource() == GUIMosA.btnUltimo)
-		{
-			if(mod.Almacen.size() == 1)
-			{
-				i = mod.Almacen.size();
-			}
-			else if(mod.Almacen.size() > 1)
-			{
-				i = mod.Almacen.size() - 1;	
-			}
-			s = 2;
-			mostrar(i,s);
-			GUIMosA.btnBorrar.setEnabled(true);
-			GUIMosA.btnEditar.setEnabled(true);
-			GUIMosA.btnSig.setEnabled(false);
-			if(mod.Almacen.size() > 1)
-			{
-				GUIMosA.btnAnt.setEnabled(true);
-				if(!GUIMosA.btnPrimero.isEnabled())
-				{
-					GUIMosA.btnPrimero.setEnabled(true);
-				}
-			}
-			else
-			{
+				s = 0;
 				GUIMosA.btnAnt.setEnabled(false);
-					
-			}
-			GUIMosA.btnUltimo.setEnabled(false);		}
-		else if(e.getSource() == GUIMosA.btnAnt) // <<
-		{
-			if(mod.Almacen.size() > 1)
-			{
-				i--;
-				s = 2;
-				mostrar(i, s);
-				GUIMosA.btnSig.setEnabled(true);
-				if(i == 0)
+				GUIMosA.btnBorrar.setEnabled(true);
+				GUIMosA.btnEditar.setEnabled(true);
+				if(mod.Almacen.size() > 1)
 				{
-					if(GUIMosA.btnPrimero.isEnabled())
+					GUIMosA.btnSig.setEnabled(true);
+					if(!GUIMosA.btnUltimo.isEnabled())
 					{
-						GUIMosA.btnPrimero.setEnabled(false);
+						GUIMosA.btnUltimo.setEnabled(true);
 					}
-					GUIMosA.btnAnt.setEnabled(false);
 				}
-				if(!GUIMosA.btnUltimo.isEnabled())
+				else
 				{
-					GUIMosA.btnUltimo.setEnabled(true);
-				}
-			}
-			if(!GUIMosA.btnUltimo.isEnabled())
-			{
-				GUIMosA.btnUltimo.setEnabled(true);
-			}
-		}
-		else if(e.getSource() == GUIMosA.btnSig) // >>
-		{
-			if(mod.Almacen.size() > 1)
-			{
-				i++;
-				s = 1;
-				mostrar(i, s);
-				GUIMosA.btnAnt.setEnabled(true);
-				if(i == mod.Almacen.size() - 1)
-				{
-					if(GUIMosA.btnUltimo.isEnabled())
-					{
-						GUIMosA.btnUltimo.setEnabled(false);
-					}
 					GUIMosA.btnSig.setEnabled(false);
+						
 				}
-				if(!GUIMosA.btnPrimero.isEnabled())
+				GUIMosA.btnPrimero.setEnabled(false);
+			}
+			else if(e.getSource() == GUIMosP.btnPrimero)
+			{
+				s = 1;
+				GUIMosP.btnAnt.setEnabled(false);
+				GUIMosP.btnBorrar.setEnabled(true);
+				GUIMosP.btnEditar.setEnabled(true);
+				if(mod.AlmacenP.size() > 1)
 				{
-					GUIMosA.btnPrimero.setEnabled(true);
+					GUIMosP.btnSig.setEnabled(true);
+					if(!GUIMosP.btnUltimo.isEnabled())
+					{
+						GUIMosP.btnUltimo.setEnabled(true);
+					}
+				}
+				else
+				{
+					GUIMosP.btnSig.setEnabled(false);
+						
+				}
+				GUIMosP.btnPrimero.setEnabled(false);
+			}
+			mostrar(i, (short) 1, s);
+		}
+		else if(e.getSource() == GUIMosA.btnUltimo || e.getSource() == GUIMosP.btnUltimo)
+		{
+			if(e.getSource() == GUIMosA.btnUltimo)
+			{
+				s = 0;
+				GUIMosA.btnBorrar.setEnabled(true);
+				GUIMosA.btnEditar.setEnabled(true);
+				GUIMosA.btnSig.setEnabled(false);
+				if(mod.Almacen.size() == 1)
+				{
+					i = mod.Almacen.size();
+				}
+				else if(mod.Almacen.size() > 1)
+				{
+					i = mod.Almacen.size() - 1;	
+				}
+				if(mod.Almacen.size() > 1)
+				{
+					GUIMosA.btnAnt.setEnabled(true);
+					if(!GUIMosA.btnPrimero.isEnabled())
+					{
+						GUIMosA.btnPrimero.setEnabled(true);
+					}
+				}
+				else
+				{
+					GUIMosA.btnAnt.setEnabled(false);
+						
+				}
+				GUIMosA.btnUltimo.setEnabled(false);	
+			}
+			if(e.getSource() == GUIMosP.btnUltimo)
+			{
+				s = 1;
+				GUIMosP.btnBorrar.setEnabled(true);
+				GUIMosP.btnEditar.setEnabled(true);
+				GUIMosP.btnSig.setEnabled(false);
+				if(mod.AlmacenP.size() == 1)
+				{
+					i = mod.AlmacenP.size();
+				}
+				else if(mod.AlmacenP.size() > 1)
+				{
+					i = mod.AlmacenP.size() - 1;	
+				}
+				if(mod.AlmacenP.size() > 1)
+				{
+					GUIMosP.btnAnt.setEnabled(true);
+					if(!GUIMosP.btnPrimero.isEnabled())
+					{
+						GUIMosP.btnPrimero.setEnabled(true);
+					}
+				}
+				else
+				{
+					GUIMosP.btnAnt.setEnabled(false);
+						
+				}
+				GUIMosP.btnUltimo.setEnabled(false);
+			}
+			mostrar(i, (short) 2, s);
+		}
+		else if(e.getSource() == GUIMosA.btnAnt || e.getSource() == GUIMosP.btnAnt) // <<
+		{
+			if(e.getSource() == GUIMosA.btnAnt)
+			{
+				s = 0;
+				if(mod.Almacen.size() > 1)
+				{
+					i--;
+					GUIMosA.btnSig.setEnabled(true);
+					if(i == 0)
+					{
+						if(GUIMosA.btnPrimero.isEnabled())
+						{
+							GUIMosA.btnPrimero.setEnabled(false);
+						}
+						GUIMosA.btnAnt.setEnabled(false);
+					}
+				}
+				if(!GUIMosA.btnUltimo.isEnabled())
+				{
+					GUIMosA.btnUltimo.setEnabled(true);
 				}
 			}
-		}
-		else if(e.getSource() == GUIMosA.btnEditar)
-		{
-			GUIMosA.btnActualizar.setEnabled(true);
-			GUIMosA.btnPrimero.setEnabled(false);
-			GUIMosA.btnUltimo.setEnabled(false);
-			GUIMosA.btnAnt.setEnabled(false);
-			GUIMosA.btnSig.setEnabled(false);
-			GUIMosA.btnBorrar.setEnabled(false);
-			sustituir(GUIMosA.InventarioTextField, GUIMosA.NombreTextField, GUIMosA.PrecioTextField, GUIMosA.PrecioTextField, GUIMosA.CategoriaTextField, GUIMosA.ProveedorTextField);
-			GUIMosA.IdTextField.setEditable(false);
-			GUIMosA.NombreTextField.setEditable(true);
-			GUIMosA.CategoriaTextField.setEditable(true);
-			GUIMosA.PrecioTextField.setEditable(true);
-			GUIMosA.InventarioTextField.setEditable(true);
-			GUIMosA.ProveedorTextField.setEditable(true);
-		}
-		else if(e.getSource() == GUIMosA.btnBorrar)
-		{
-			if(!mod.Almacen.isEmpty())
+			else if(e.getSource() == GUIMosP.btnAnt)
 			{
-				mod.Almacen.remove(i);
-				
-				sustituir(GUIMosA.IdTextField, GUIMosA.NombreTextField, GUIMosA.CategoriaTextField, GUIMosA.PrecioTextField, GUIMosA.InventarioTextField, GUIMosA.ProveedorTextField);
-				JOptionPane.showMessageDialog(null, "Juguete eliminado exitosamente");
-				GUIMosA.btnBorrar.setEnabled(false);
-				GUIMosA.btnAnt.setEnabled(false);
-				GUIMosA.btnSig.setEnabled(false);
-				GUIMosA.btnEditar.setEnabled(false);
+				s = 1;
+				if(mod.AlmacenP.size() > 1)
+				{
+					i--;
+					GUIMosP.btnSig.setEnabled(true);
+					if(i == 0)
+					{
+						if(GUIMosP.btnPrimero.isEnabled())
+						{
+							GUIMosP.btnPrimero.setEnabled(false);
+						}
+						GUIMosP.btnAnt.setEnabled(false);
+					}
+				}
+				if(!GUIMosP.btnUltimo.isEnabled())
+				{
+					GUIMosP.btnUltimo.setEnabled(true);
+				}
 			}
-			if(mod.Almacen.size() == 0)
+			mostrar(i, (short) 2, s);
+		}
+		else if(e.getSource() == GUIMosA.btnSig || e.getSource() == GUIMosP.btnSig) // >>
+		{
+			if(e.getSource() == GUIMosA.btnSig)
 			{
+				s = 0;
+				if(mod.Almacen.size() > 1)
+				{
+					i++;
+					GUIMosA.btnAnt.setEnabled(true);
+					if(i == mod.Almacen.size() - 1)
+					{
+						if(GUIMosA.btnUltimo.isEnabled())
+						{
+							GUIMosA.btnUltimo.setEnabled(false);
+						}
+						GUIMosA.btnSig.setEnabled(false);
+					}
+					if(!GUIMosA.btnPrimero.isEnabled())
+					{
+						GUIMosA.btnPrimero.setEnabled(true);
+					}
+				}
+			}
+			else if(e.getSource() == GUIMosP.btnSig)
+			{
+				s = 1;
+				if(mod.AlmacenP.size() > 1)
+				{
+					i++;
+					GUIMosP.btnAnt.setEnabled(true);
+					if(i == mod.AlmacenP.size() - 1)
+					{
+						if(GUIMosP.btnUltimo.isEnabled())
+						{
+							GUIMosP.btnUltimo.setEnabled(false);
+						}
+						GUIMosP.btnSig.setEnabled(false);
+					}
+					if(!GUIMosP.btnPrimero.isEnabled())
+					{
+						GUIMosP.btnPrimero.setEnabled(true);
+					}
+				}
+			}
+			mostrar(i, (short) 1, s);
+		}
+		else if(e.getSource() == GUIMosA.btnEditar || e.getSource() == GUIMosP.btnEditar)
+		{
+			if(e.getSource() == GUIMosA.btnEditar)
+			{
+				GUIMosA.btnActualizar.setEnabled(true);
 				GUIMosA.btnPrimero.setEnabled(false);
 				GUIMosA.btnUltimo.setEnabled(false);
+				GUIMosA.btnAnt.setEnabled(false);
+				GUIMosA.btnSig.setEnabled(false);
+				GUIMosA.btnBorrar.setEnabled(false);
+				sustituir(GUIMosA.InventarioTextField, GUIMosA.NombreTextField, GUIMosA.PrecioTextField, GUIMosA.PrecioTextField, GUIMosA.CategoriaTextField, GUIMosA.ProveedorTextField);
+				GUIMosA.IdTextField.setEditable(false);
+				GUIMosA.NombreTextField.setEditable(true);
+				GUIMosA.CategoriaTextField.setEditable(true);
+				GUIMosA.PrecioTextField.setEditable(true);
+				GUIMosA.InventarioTextField.setEditable(true);
+				GUIMosA.ProveedorTextField.setEditable(true);
 			}
-			else
+			else if(e.getSource() == GUIMosP.btnEditar)
 			{
-				GUIMosA.btnPrimero.setEnabled(true);
-				GUIMosA.btnUltimo.setEnabled(true);
+				GUIMosP.btnActualizar.setEnabled(true);
+				GUIMosP.btnPrimero.setEnabled(false);
+				GUIMosP.btnUltimo.setEnabled(false);
+				GUIMosP.btnAnt.setEnabled(false);
+				GUIMosP.btnSig.setEnabled(false);
+				GUIMosP.btnBorrar.setEnabled(false);
+				sustituir(GUIMosP.NombreTextField, GUIMosP.TelefonoTextField, GUIMosP.EmailTextField, GUIMosP.DireccionTextField, GUIMosP.DireccionTextField, GUIMosP.DireccionTextField);
+				GUIMosA.IdTextField.setEditable(false);
+				GUIMosA.NombreTextField.setEditable(true);
+				GUIMosA.CategoriaTextField.setEditable(true);
+				GUIMosA.PrecioTextField.setEditable(true);
+				GUIMosA.InventarioTextField.setEditable(true);
+				GUIMosA.ProveedorTextField.setEditable(true);
 			}
 		}
-		else if(e.getSource() == GUIMosA.btnActualizar)
+		else if(e.getSource() == GUIMosA.btnBorrar || e.getSource() == GUIMosP.btnBorrar)
 		{
-			cve = Integer.parseInt(GUIMosA.IdTextField.getText());
-			cat = GUIMosA.CategoriaTextField.getText();
-			nom = GUIMosA.NombreTextField.getText();
-			pre = Float.parseFloat(GUIMosA.PrecioTextField.getText());
-			inv = Integer.parseInt(GUIMosA.InventarioTextField.getText());
-			prov = Integer.parseInt(GUIMosA.ProveedorTextField.getText());
+			if(e.getSource() == GUIMosA.btnBorrar)
+			{
+				if(!mod.Almacen.isEmpty())
+				{
+					mod.Almacen.remove(i);
+					
+					sustituir(GUIMosA.IdTextField, GUIMosA.NombreTextField, GUIMosA.CategoriaTextField, GUIMosA.PrecioTextField, GUIMosA.InventarioTextField, GUIMosA.ProveedorTextField);
+					JOptionPane.showMessageDialog(null, "Juguete eliminado exitosamente");
+					GUIMosA.btnBorrar.setEnabled(false);
+					GUIMosA.btnAnt.setEnabled(false);
+					GUIMosA.btnSig.setEnabled(false);
+					GUIMosA.btnEditar.setEnabled(false);
+				}
+				if(mod.Almacen.size() == 0)
+				{
+					GUIMosA.btnPrimero.setEnabled(false);
+					GUIMosA.btnUltimo.setEnabled(false);
+				}
+				else
+				{
+					GUIMosA.btnPrimero.setEnabled(true);
+					GUIMosA.btnUltimo.setEnabled(true);
+				}
+			}
+			else if(e.getSource() == GUIMosP.btnBorrar)
+			{
+				if(!mod.AlmacenP.isEmpty())
+				{
+					mod.AlmacenP.remove(i);
+					
+					sustituir(GUIMosP.IdTextField, GUIMosP.NombreTextField, GUIMosP.TelefonoTextField, GUIMosP.EmailTextField, GUIMosP.DireccionTextField, GUIMosP.DireccionTextField);
+					JOptionPane.showMessageDialog(null, "Juguete eliminado exitosamente");
+					GUIMosP.btnBorrar.setEnabled(false);
+					GUIMosP.btnAnt.setEnabled(false);
+					GUIMosP.btnSig.setEnabled(false);
+					GUIMosP.btnEditar.setEnabled(false);
+				}
+				if(mod.AlmacenP.size() == 0)
+				{
+					GUIMosP.btnPrimero.setEnabled(false);
+					GUIMosP.btnUltimo.setEnabled(false);
+				}
+				else
+				{
+					GUIMosP.btnPrimero.setEnabled(true);
+					GUIMosP.btnUltimo.setEnabled(true);
+				}
+			}
 			
-			mod.Almacen.get(i).setCve_art(cve);
-			mod.Almacen.get(i).setCat_art(cat);
-			mod.Almacen.get(i).setNom_art(nom);
-			mod.Almacen.get(i).setPre_art(pre);
-			mod.Almacen.get(i).setInv_art(inv);
-			mod.Almacen.get(i).setProv_art(prov);
-			
-			JOptionPane.showMessageDialog(null, "Juguete actualizado exitosamente");
-			
-			GUIMosA.btnPrimero.setEnabled(true);
-			GUIMosA.btnUltimo.setEnabled(true);
-			GUIMosA.btnActualizar.setEnabled(false);
+		}
+		else if(e.getSource() == GUIMosA.btnActualizar || e.getSource() == GUIMosP.btnActualizar)
+		{
+			if(e.getSource() == GUIMosA.btnActualizar)
+			{
+				cve = Integer.parseInt(GUIMosA.IdTextField.getText());
+				cat = GUIMosA.CategoriaTextField.getText();
+				nom = GUIMosA.NombreTextField.getText();
+				pre = Float.parseFloat(GUIMosA.PrecioTextField.getText());
+				inv = Integer.parseInt(GUIMosA.InventarioTextField.getText());
+				prov = Integer.parseInt(GUIMosA.ProveedorTextField.getText());
 				
-			GUIMosA.IdTextField.setEditable(false);
-			GUIMosA.NombreTextField.setEditable(false);
-			GUIMosA.CategoriaTextField.setEditable(false);
-			GUIMosA.PrecioTextField.setEditable(false);
-			GUIMosA.InventarioTextField.setEditable(false);
-			GUIMosA.ProveedorTextField.setEditable(false);
+				mod.Almacen.get(i).setCve_art(cve);
+				mod.Almacen.get(i).setCat_art(cat);
+				mod.Almacen.get(i).setNom_art(nom);
+				mod.Almacen.get(i).setPre_art(pre);
+				mod.Almacen.get(i).setInv_art(inv);
+				mod.Almacen.get(i).setProv_art(prov);
+				
+				JOptionPane.showMessageDialog(null, "Juguete actualizado exitosamente");
+				
+				GUIMosA.btnPrimero.setEnabled(true);
+				GUIMosA.btnUltimo.setEnabled(true);
+				GUIMosA.btnActualizar.setEnabled(false);
+					
+				GUIMosA.IdTextField.setEditable(false);
+				GUIMosA.NombreTextField.setEditable(false);
+				GUIMosA.CategoriaTextField.setEditable(false);
+				GUIMosA.PrecioTextField.setEditable(false);
+				GUIMosA.InventarioTextField.setEditable(false);
+				GUIMosA.ProveedorTextField.setEditable(false);
+			}
+			else if(e.getSource() == GUIMosP.btnActualizar)
+			{
+				cve = Integer.parseInt(GUIMosP.IdTextField.getText());
+				nom = GUIMosP.NombreTextField.getText();
+				tel = GUIMosP.TelefonoTextField.getText();
+				email = GUIMosP.EmailTextField.getText();
+				dir = GUIMosP.DireccionTextField.getText();
+				
+				mod.AlmacenP.get(i).setCve_prov(cve);
+				mod.AlmacenP.get(i).setNom_prov(nom);
+				mod.AlmacenP.get(i).setTel_prov(tel);
+				mod.AlmacenP.get(i).setEmail_prov(email);
+				mod.AlmacenP.get(i).setDir_prov(dir);
+				
+				JOptionPane.showMessageDialog(null, "Juguete actualizado exitosamente");
+				
+				GUIMosP.btnPrimero.setEnabled(true);
+				GUIMosP.btnUltimo.setEnabled(true);
+				GUIMosP.btnActualizar.setEnabled(false);
+					
+				GUIMosP.IdTextField.setEditable(false);
+				GUIMosP.NombreTextField.setEditable(false);
+				GUIMosP.TelefonoTextField.setEditable(false);
+				GUIMosP.EmailTextField.setEditable(false);
+				GUIMosP.DireccionTextField.setEditable(false);
+			}
 		}
 	}
 	
-	Connection con;
 	void conectar(String usr, String pw)
 	{
 		String server = "jdbc:mysql://localhost/tiendajuguetes";
@@ -401,12 +639,36 @@ public class Controlador implements ActionListener
 		F.setText("");
 	}
 	
-	private void mostrar(int i, short op)
+	private void sustituir(JTextField A, JTextField B, JTextField C, JTextField D)
 	{
-		Articulo A = mod.Almacen.get(i);
-		while(A == null)
+		A.setText("");
+		B.setText("");
+		C.setText("");
+		D.setText("");
+	}
+	
+	Object B;
+	private void mostrar(int i, short op, short op2)
+	{
+		switch(op2)
 		{
-			if(A == null)
+			case 0:
+			{	Articulo A;
+				A = mod.Almacen.get(i);
+				B = A;
+				break;
+			}
+			case 1:
+			{
+				Proveedor A;
+				A = mod.AlmacenP.get(i);
+				B = A;
+				break;
+			}
+		}
+		while(B == null)
+		{
+			if(B == null)
 			{
 				switch(op)
 				{
@@ -415,13 +677,91 @@ public class Controlador implements ActionListener
 					case 3: break;
 				}
 			}
-			A = mod.Almacen.get(i);
 		}
-		GUIMosA.IdTextField.setText(""+A.getCve_art());
-		GUIMosA.NombreTextField.setText(A.getNom_art());
-		GUIMosA.CategoriaTextField.setText(A.getCat_art());
-		GUIMosA.PrecioTextField.setText(""+A.getPre_art());
-		GUIMosA.InventarioTextField.setText(""+A.getInv_art());
-		GUIMosA.ProveedorTextField.setText(""+A.getProv_art());
+		switch(op2)
+		{
+			case 0: //Articulo
+			{
+				B = mod.Almacen.get(i);
+
+				
+				GUIMosA.IdTextField.setText(""+((Articulo) B).getCve_art());
+				GUIMosA.NombreTextField.setText(((Articulo) B).getNom_art());
+				GUIMosA.CategoriaTextField.setText(((Articulo) B).getCat_art());
+				GUIMosA.PrecioTextField.setText(""+((Articulo) B).getPre_art());
+				GUIMosA.InventarioTextField.setText(""+((Articulo) B).getInv_art());
+				GUIMosA.ProveedorTextField.setText(""+((Articulo) B).getProv_art());
+				break;
+			}
+			case 1: //Proveedor
+			{
+				B = mod.AlmacenP.get(i);
+				
+				GUIMosP.IdTextField.setText(""+((Proveedor) B).getCve_prov());
+				GUIMosP.NombreTextField.setText(((Proveedor) B).getNom_prov());
+				GUIMosP.TelefonoTextField.setText(((Proveedor) B).getTel_prov());
+				GUIMosP.EmailTextField.setText(""+((Proveedor) B).getEmail_prov());
+				GUIMosP.DireccionTextField.setText(""+((Proveedor) B).getDir_prov());
+				break;
+			}
+		}
+	}
+	
+	private void convertirDatos(ResultSet rs, short op)
+	{
+		switch(op)
+		{
+			case 0: //para articulo
+			{
+				if(!mod.Almacen.isEmpty())
+				{
+					mod.Almacen.clear();
+				}
+				try {
+					while(rs.next())
+					{
+						int cve = rs.getInt("cve_art");
+						String cat = rs.getString("cat_art");
+						String nom = rs.getString("nom_art");
+						float pre = rs.getFloat("pre_art");
+						int inv = rs.getInt("inv_art");
+						int prov = rs.getInt("cveprov_art");
+						
+						Articulo art = new Articulo(cve, cat, nom, pre, inv, prov);
+						mod.Almacen.add(art);
+					}
+				} 
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			case 1: //para proveedor
+			{
+				if(!mod.AlmacenP.isEmpty())
+				{
+					mod.AlmacenP.clear();
+				}
+				try {
+					while(rs.next())
+					{
+						int cve = rs.getInt("cve_prov");
+						String nom = rs.getString("nom_prov");
+						String tel = rs.getString("tel_prov");
+						String email = rs.getString("email_prov");
+						String dir = rs.getString("dir_prov");
+						
+						Proveedor prov = new Proveedor(cve, nom, tel, email, dir);
+						mod.AlmacenP.add(prov);
+					}
+				} 
+				catch (SQLException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
